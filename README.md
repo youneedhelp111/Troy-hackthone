@@ -1,40 +1,42 @@
-# Troy-hackthone-任务题目
+# StudyPal — AI Study Buddy
 
-**StudyPal** — 把课件变成会引用原文的私人助教
+**Turn your course materials into an AI tutor that cites every answer.**
 
-> Troy Hackathon 2026 · 方向 2 · Language Models · **AI Study Pal / Buddy**
-> 从「问答」到「测出薄弱点」再到「针对性复习」，一个网页内完成闭环。
+> Troy Hackathon 2026 · Track 2 · Language Models · **AI Study Pal / Buddy**
+> One web app for the whole loop: upload → ask (with citations) → practice → review → know what to study next.
+
+[中文版 (Chinese)](README.zh.md)
 
 ![StudyPal Insights](docs/insights.png)
 
 ---
 
-## 这是什么
+## What it solves
 
-大多数学习助手只是把 PDF 丢进聊天框。StudyPal 解决的是三个更具体的问题：
+Most study tools just drop a PDF into a chatbot. StudyPal solves three sharper problems:
 
-1. **答案不可信** → 每句结论都带 `[n]` 引用，可点回原文页码。
-2. **学过就忘** → 自动出题、闪卡自评，结果写入概念掌握度。
-3. **不知道下一步学什么** → 薄弱点画像 + AI 生成的三小时学习计划。
+1. **Answers you can't trust** → every claim carries an `[n]` citation you can click back to the source page.
+2. **You forget after learning** → auto-generated quizzes and flashcards feed a per-concept mastery map.
+3. **You don't know what to study next** → a weak-spot profile plus an AI-generated 3-hour study plan.
 
-演示时的一句话：
+The one-liner for your pitch:
 
-> 它不是帮你读，而是确保你真的学会了 —— 而且每一句答案你都能查证。
+> It doesn't just read for you — it makes sure you actually learned it, and every answer is checkable.
 
 ---
 
-## 功能
+## Features
 
-| 模块 | 能力 |
+| Module | What it does |
 |---|---|
-| **Materials** | 拖拽上传 PDF / PPTX / DOCX / TXT / MD / CSV；后台解析、切块、向量化；自动提取标题、摘要与主题标签；显示页数、块数、处理状态 |
-| **Chat** | 基于材料流式问答；`[n]` 引用角标；来源抽屉显示文档名、页码、原文；材料里没有答案时明确说「找不到」；会话历史可恢复 |
-| **Practice** | 3–20 道单选题；Easy / Medium / Hard；作答即时反馈 + 解析 + 来源页码；交卷后服务端判分并更新掌握度；可只考薄弱概念 |
-| **Flashcards** | 4–30 张闪卡；3D 翻转；「没记住 / 记住了」自评；键盘 `Space` / `←` / `→`；复习记录持久化 |
-| **Insights** | 概念掌握度条；薄弱点列表；近 7 天活动；个性化建议；一键生成 3 小时学习计划 |
-| **Privacy** | 文件与索引都留在本机；只有检索到的片段会发给云端模型；无账号、无追踪 |
+| **Materials** | Drag & drop PDF / PPTX / DOCX / TXT / MD / CSV; parsed, chunked and indexed locally; auto title, summary and topic tags; page / chunk / status shown |
+| **Chat** | Streaming Q&A grounded in your materials; `[n]` citation markers; source drawer with document, page and excerpt; says "not found" honestly when the answer isn't in your files; sessions resume |
+| **Practice** | 3–20 multiple-choice questions; Easy / Medium / Hard; instant feedback + explanation + source page; server-side scoring updates mastery; can target weak concepts only |
+| **Flashcards** | 4–30 cards; 3D flip; "Again / Got it" self-rating; `Space` / `←` / `→` keys; reviews persist |
+| **Insights** | Concept mastery bars; weak-spot list; 7-day activity; personalized suggestions; one-click 3-hour study plan |
+| **Privacy** | Files and index stay on your machine; only retrieved snippets go to the cloud model; no account, no tracking |
 
-### 界面
+### Screenshots
 
 | Chat | Materials |
 |---|---|
@@ -46,173 +48,156 @@
 
 ---
 
-## 三分钟演示脚本
+## Quick start
 
-1. **0:00 · Materials** 拖入 `sample_data/Operating-Systems-Midterm-Notes.pdf`，展示 30 秒内完成解析、分块、本地索引，主题标签自动生成。
-2. **0:30 · Chat** 提问：「What are the four necessary conditions for deadlock?」→ 流式回答 → 点击 `[1]` 打开原文第 3 页。
-3. **1:00 · Chat** 问一个材料里没有的问题 → 它明确说找不到，并建议上传相关文档。
-4. **1:20 · Practice** 选择 5 题 / Medium → 生成 → 故意答错两题 → 结果页显示薄弱概念。
-5. **2:10 · Flashcards** 生成 8 张卡 → 用 `Space` 翻面、`→` 标记记住。
-6. **2:40 · Insights** 掌握度条更新 → 点击 **Generate 3-hour plan**，收尾。
+### 1. Prerequisites
 
----
+- **Python 3.11+**
+- **A DeepSeek API key** ([platform.deepseek.com](https://platform.deepseek.com))
+- Optional: [Ollama](https://ollama.com) for local embeddings (without it, StudyPal falls back to keyword search — still fully usable)
 
-## 技术架构
+### 2. Launch
 
-```
-Browser (原生 HTML/CSS/JS，无构建、无 CDN)
-   │ fetch JSON + SSE
-FastAPI (Python 3.13，单进程)
-   ├── SQLite (WAL)  documents / chunks / FTS5 / quizzes / cards / mastery
-   ├── 检索：Ollama nomic-embed-text (768d) + BM25 → RRF 融合
-   └── 生成：DeepSeek Cloud API (deepseek-flash)
-```
+**Windows** — double-click `start.bat` (installs dependencies, starts the server, opens your browser).
 
-| 层 | 选型 | 理由 |
-|---|---|---|
-| 前端 | 原生 JS 单页应用 | 演示机器无 Node，零构建、零 CDN 依赖 |
-| 后端 | FastAPI + Uvicorn | 异步流式、类型校验、单文件启动 |
-| 存储 | SQLite + FTS5 | 单文件、零运维、支持中文 bigram 检索 |
-| 向量检索 | Ollama + numpy 余弦 | 几千 chunk 无需向量数据库；DeepSeek 无 embedding API |
-| 生成 | DeepSeek `deepseek-flash` | 云端推理、1M 上下文、无需本地 GPU |
-| 流式 | SSE | 首字延迟低，演示观感好 |
+**macOS / Linux** — run `bash start.sh`.
 
-更细的接口、库表、数据流见 **[BACKEND.md](BACKEND.md)**；产品与前端设计见 **[DESIGN.md](DESIGN.md)**。
-
----
-
-## 快速开始
-
-### 1. 环境
-
-- Python 3.11+
-- 可选：Ollama（用于本地向量化；不装也能用纯关键词检索）
-- 一个 DeepSeek API Key
+Or manually:
 
 ```bash
 python -m pip install -r requirements.txt
-```
-
-### 2. 配置
-
-```bash
-cp .env.example .env
-# 编辑 .env，填入 DEEPSEEK_KEY
-```
-
-```dotenv
-DEEPSEEK_KEY=sk-...
-DEEPSEEK_MODEL=deepseek-flash
-
-EMBED_PROVIDER=ollama
-OLLAMA_URL=http://127.0.0.1:11434
-EMBED_MODEL=nomic-embed-text
-EMBED_DIM=768
-```
-
-> 没有 Ollama？把 `EMBED_PROVIDER` 改成 `none`，系统会退化为 SQLite FTS5 + BM25，仍可完整演示。
-
-### 3. 启动
-
-Windows 双击 `run.cmd`，或：
-
-```bash
 python run.py
 ```
 
-浏览器会自动打开 **http://127.0.0.1:8000**。
+### 3. Enter your API key
 
-首次使用 Ollama embedding 时会加载模型，约 10–20 秒。
+Your browser opens **http://127.0.0.1:8000** and a popup asks for your DeepSeek key on first launch. Paste it once and you're done — it's stored only on this machine (`data/studypal.db`, gitignored). No `.env` editing required. You can change the key, base URL or model anytime in **Settings**.
 
-### 4. 准备演示材料
+The backend defaults to DeepSeek (`deepseek-flash`, `https://api.deepseek.com/v1`).
 
-`sample_data/` 已包含两份课程材料：
+### 4. Add some material
 
-- `Operating-Systems-Midterm-Notes.pdf` / `.md`
-- `Machine-Learning-Lecture-04.md`
-
-在 Materials 页拖入即可。
+`sample_data/` ships two course notes. Drop them into **Materials** and start asking.
 
 ---
 
-## 项目结构
+## Architecture
+
+```
+Browser (vanilla HTML/CSS/JS — no build, no CDN)
+   │ fetch JSON + SSE
+FastAPI (Python 3.13, single process)
+   ├── SQLite (WAL)  documents / chunks / FTS5 / quizzes / cards / mastery / settings
+   ├── Retrieval: Ollama nomic-embed-text (768d) + BM25 → RRF fusion
+   └── Generation: DeepSeek Cloud API (deepseek-flash)
+```
+
+| Layer | Choice | Why |
+|---|---|---|
+| Frontend | Vanilla JS SPA | No Node on the demo machine; zero build, zero CDN |
+| Backend | FastAPI + Uvicorn | Async streaming, typed validation, single-file start |
+| Storage | SQLite + FTS5 | Single file, zero ops, CJK bigram search for Chinese |
+| Vector search | Ollama + numpy cosine | A few thousand chunks need no vector DB; DeepSeek has no embedding API |
+| Generation | DeepSeek `deepseek-flash` | Cloud inference, 1M context, no local GPU |
+| Streaming | SSE | Low time-to-first-token, good demo feel |
+
+Deeper API / schema / data-flow docs: **[BACKEND.md](BACKEND.md)** · product & UI spec: **[DESIGN.md](DESIGN.md)**.
+
+---
+
+## 3-minute demo script
+
+1. **0:00 · Materials** — drop in `sample_data/Operating-Systems-Midterm-Notes.pdf`; parsing, chunking and local indexing finish in ~30s with auto topic tags.
+2. **0:30 · Chat** — ask *"What are the four necessary conditions for deadlock?"* → streamed answer → click `[1]` to open page 3.
+3. **1:00 · Chat** — ask something not in the notes → it says it can't find it and suggests uploading more.
+4. **1:20 · Practice** — generate 5 Medium questions → answer two wrong on purpose → result page shows the weak concepts.
+5. **2:10 · Flashcards** — generate 8 cards → `Space` to flip, `→` to mark known.
+6. **2:40 · Insights** — mastery bars updated → click **Generate 3-hour plan** to close.
+
+---
+
+## Project structure
 
 ```
 studypal/
-├── app/                  FastAPI 后端
-│   ├── main.py           路由、上传、SSE、统计
-│   ├── rag.py            混合检索与上下文
-│   ├── ingest.py         PDF/DOCX/PPTX 解析与切块
-│   ├── llm.py            DeepSeek 客户端
-│   ├── prompts.py        提示词
+├── app/                  FastAPI backend
+│   ├── main.py           routes, upload, SSE, analytics
+│   ├── rag.py            hybrid retrieval & context
+│   ├── ingest.py         PDF/DOCX/PPTX parsing & chunking
+│   ├── llm.py            DeepSeek client
+│   ├── prompts.py        prompt templates
 │   ├── db.py             SQLite schema
-│   └── config.py         环境配置
-├── static/               前端（无构建）
+│   ├── settings.py       runtime LLM settings (key/base_url/model)
+│   └── config.py         env config
+├── static/               frontend (no build)
 │   ├── index.html
 │   ├── styles.css
 │   └── app.js
-├── sample_data/          演示材料
-├── docs/                 README 截图
-├── data/                 运行时生成（已 gitignore）
-├── run.py / run.cmd      启动入口
-├── BACKEND.md            后端接口与架构文档
-├── DESIGN.md             功能清单与 UI 设计稿
+├── sample_data/          demo materials
+├── docs/                 README screenshots
+├── data/                 runtime files (gitignored)
+├── run.py                start entry (opens browser)
+├── start.bat / start.sh  one-click install + launch
+├── README.md / README.zh.md
+├── BACKEND.md            backend & API docs
+├── DESIGN.md             feature list & UI spec
 └── requirements.txt
 ```
 
 ---
 
-## API 速览
+## API at a glance
 
-完整请求/响应、SSE 事件、错误码见 [BACKEND.md](BACKEND.md)。
+Full request/response, SSE events and error codes: **[BACKEND.md](BACKEND.md)**.
 
-| Method | Path | 用途 |
+| Method | Path | Purpose |
 |---|---|---|
-| POST | `/api/documents` | 上传并异步索引 |
-| GET | `/api/documents` | 文档列表与状态 |
-| POST | `/api/chat` | SSE 流式问答（带引用） |
-| POST | `/api/quiz/generate` | 生成测验 |
-| POST | `/api/quiz/{id}/submit` | 交卷判分 |
-| POST | `/api/flashcards/generate` | 生成闪卡 |
-| POST | `/api/flashcards/review` | 记录复习 |
-| GET | `/api/analytics` | 掌握度与建议 |
-| POST | `/api/study-plan` | 生成学习计划 |
+| GET | `/api/settings` | Current LLM config (key masked) |
+| PUT | `/api/settings` | Save API key / base URL / model |
+| POST | `/api/documents` | Upload & index asynchronously |
+| GET | `/api/documents` | List documents & status |
+| POST | `/api/chat` | SSE streaming Q&A with citations |
+| POST | `/api/quiz/generate` | Generate a quiz |
+| POST | `/api/quiz/{id}/submit` | Submit & score |
+| POST | `/api/flashcards/generate` | Generate flashcards |
+| POST | `/api/flashcards/review` | Record a review |
+| GET | `/api/analytics` | Mastery & suggestions |
+| POST | `/api/study-plan` | Generate a study plan |
 
 ---
 
-## 与评分标准的对应
+## Scoring alignment
 
-| 评分项 | 权重 | 对应实现 |
+| Criterion | Weight | Implementation |
 |---|---|---|
-| Innovation & Creativity | 20% | 引用可验证的问答 + 掌握度闭环 + 本地优先架构 |
-| Technical Excellence | 20% | 混合检索（Dense + BM25 + RRF）、SSE、JSON 修复重试、后台索引 |
-| Functionality & Completeness | 20% | 上传、问答、出题、判分、闪卡、画像、学习计划全部可用 |
-| Impact & Usefulness | 15% | 解决「AI 答案不可信」与「不知道复习什么」两个真实问题 |
-| Teamwork & Collaboration | 15% | 模块化后端 + 独立前端 + 文档，便于并行开发 |
-| Presentation & Pitch | 10% | 三分钟演示脚本 + 完整截图 + 可现场操作 |
+| Innovation & Creativity | 20% | Verifiable cited Q&A + mastery loop + local-first architecture |
+| Technical Excellence | 20% | Hybrid retrieval (dense + BM25 + RRF), SSE, JSON repair-retry, background indexing |
+| Functionality & Completeness | 20% | Upload, Q&A, quiz, scoring, flashcards, analytics, study plan — all working |
+| Impact & Usefulness | 15% | Solves "unverifiable AI answers" and "don't know what to revise" |
+| Teamwork & Collaboration | 15% | Modular backend + standalone frontend + docs, easy to parallelize |
+| Presentation & Pitch | 10% | 3-minute script + screenshots + live demo |
 
 ---
 
-## 设计取舍与边界
+## Design notes & limits
 
-- **只对上传材料作答**：不接外部知识；找不到就明确说找不到，避免幻觉。
-- **本地索引、云端生成**：文件与向量留在本机，只有检索片段发给模型。
-- **扫描版 PDF 无文字层**：当前不自动 OCR，会明确标记失败。
-- **中文材料**：FTS 使用 CJK bigram 保证可检索；`nomic-embed-text` 以英文为主，中文场景建议换 `bge-m3` 并同步 `EMBED_DIM`。
-- **单用户、无鉴权**：面向本机演示，请勿直接暴露公网。
-- **掌握度**：平滑正确率，尚未实现 SM-2 间隔重复。
+- **Answers only from your materials**: no external knowledge; it says "not found" instead of hallucinating.
+- **Local index, cloud generation**: files and vectors stay on the machine; only retrieved snippets reach the model.
+- **Scanned PDFs without a text layer**: no auto-OCR yet; marked as failed clearly.
+- **Chinese materials**: FTS uses CJK bigrams so they stay searchable; `nomic-embed-text` is English-centric — for Chinese, swap in `bge-m3` and update `EMBED_DIM`.
+- **Single-user, no auth**: built for local demo — don't expose it to the public internet.
+- **Mastery**: smoothed accuracy; no SM-2 spaced repetition yet.
 
 ### Roadmap
 
-- OCR 扫描件与手写笔记
-- 错题重练与 SM-2 复习队列
-- 多用户、课程空间、LMS（Canvas）集成
-- 导出复习包（问答 + 错题 + 闪卡）
-- 中文 embedding 与多语言界面
+- OCR for scanned & handwritten notes
+- Mistake re-drill and SM-2 review queue
+- Multi-user, course spaces, LMS (Canvas) integration
+- Export a review pack (Q&A + mistakes + cards)
+- Chinese embeddings & full localization
 
 ---
 
-## 说明
+## Note
 
-本项目为 Troy Hackathon 2026 参赛作品，代码与文档用于演示与评审。
-`.env`、`data/` 已加入 `.gitignore`，不会提交密钥或本地索引。
+Entry for Troy Hackathon 2026. `.env` and `data/` are gitignored, so no API key or local index is ever committed.

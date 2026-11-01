@@ -8,7 +8,7 @@ from typing import AsyncIterator
 
 import httpx
 
-from .config import DEEPSEEK_BASE, DEEPSEEK_KEY, DEEPSEEK_MODEL
+from .settings import load as load_settings
 
 
 class LLMError(RuntimeError):
@@ -16,10 +16,11 @@ class LLMError(RuntimeError):
 
 
 def _headers() -> dict:
-    if not DEEPSEEK_KEY:
-        raise LLMError("DEEPSEEK_KEY is not set. Add it to .env")
+    key = load_settings()["api_key"]
+    if not key:
+        raise LLMError("No API key set. Add one in Settings.")
     return {
-        "Authorization": f"Bearer {DEEPSEEK_KEY}",
+        "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
     }
 
@@ -33,8 +34,9 @@ async def complete(
     retries: int = 2,
 ) -> str:
     """Non-streaming completion. Retries transient failures."""
+    s = load_settings()
     payload: dict = {
-        "model": DEEPSEEK_MODEL,
+        "model": s["model"],
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
@@ -49,7 +51,7 @@ async def complete(
         for attempt in range(retries + 1):
             try:
                 resp = await client.post(
-                    f"{DEEPSEEK_BASE}/chat/completions",
+                    f"{s['base_url']}/chat/completions",
                     headers=_headers(),
                     json=payload,
                 )
@@ -71,8 +73,9 @@ async def stream(
     max_tokens: int = 2500,
 ) -> AsyncIterator[str]:
     """Yield content deltas from a streaming completion."""
+    s = load_settings()
     payload = {
-        "model": DEEPSEEK_MODEL,
+        "model": s["model"],
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
@@ -82,7 +85,7 @@ async def stream(
     async with httpx.AsyncClient(timeout=timeout) as client:
         async with client.stream(
             "POST",
-            f"{DEEPSEEK_BASE}/chat/completions",
+            f"{s['base_url']}/chat/completions",
             headers=_headers(),
             json=payload,
         ) as resp:

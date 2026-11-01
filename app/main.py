@@ -17,7 +17,6 @@ from pydantic import BaseModel, Field
 
 from .config import (
     DATA_DIR,
-    DEEPSEEK_MODEL,
     EMBED_MODEL,
     EMBED_PROVIDER,
     MAX_DOCS,
@@ -27,6 +26,7 @@ from .config import (
     UPLOAD_DIR,
 )
 from .db import bump_mastery, db, init_db, new_id
+from .settings import load as load_llm_settings, mask_key, save as save_llm_settings
 from .ingest import SUPPORTED_EXT, chunk_sections, fts_tokens, parse_file
 from .llm import LLMError, complete_json, stream
 from .prompts import (
@@ -82,6 +82,12 @@ class ReviewRequest(BaseModel):
 
 class PlanRequest(BaseModel):
     doc_ids: list[str] | None = None
+
+
+class SettingsUpdate(BaseModel):
+    api_key: str | None = None
+    base_url: str | None = None
+    model: str | None = None
 
 
 # ------------------------------------------------------------------ helpers
@@ -193,7 +199,7 @@ async def health():
         chunks = conn.execute("SELECT COUNT(*) c FROM chunks").fetchone()["c"]
     return {
         "ok": True,
-        "llm_model": DEEPSEEK_MODEL,
+        "llm_model": load_llm_settings()["model"],
         "embed_provider": EMBED_PROVIDER,
         "embed_model": EMBED_MODEL if EMBED_PROVIDER == "ollama" else None,
         "embedding_ready": EMBED_PROVIDER != "ollama" or ollama_ok,
@@ -207,6 +213,35 @@ async def list_documents():
     with db() as conn:
         rows = conn.execute("SELECT * FROM documents ORDER BY created_at DESC").fetchall()
     return {"documents": [_doc_json(r) for r in rows]}
+
+
+# ------------------------------------------------------------------ settings
+
+def _settings_json() -> dict:
+    s = load_llm_settings()
+    return {
+        "base_url": s["base_url"],
+        "model": s["model"],
+        "has_key": bool(s["api_key"]),
+        "key_preview": mask_key(s["api_key"]),
+    }
+
+
+@app.get("/api/settings")
+async def get_settings():
+    return _settings_json()
+
+
+@app.put("/api/settings")
+async def update_settings(req: SettingsUpdate):
+    if req.base_url is not None and req.base_url.strip():
+        url = req.base_url.strip().rstrip("/")
+        if not url.startswith(("http://", "https://")):
+            raise HTTPException(400, "Base URL must start with http:// or https://")
+    if req.model is not None and not req.model.strip():
+        raise HTTPException(400, "Model cannot be empty")
+    save_llm_settings(api_key=req.api_key, base_url=req.base_url, model=req.model)
+    return _settings_json()
 
 
 @app.get("/api/documents/{doc_id}")

@@ -101,6 +101,11 @@ CREATE TABLE IF NOT EXISTS mastery (
     total     INTEGER DEFAULT 0,
     last_seen TEXT
 );
+
+CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 """
 
 

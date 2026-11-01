@@ -24,30 +24,34 @@
       <nav class="nav" aria-label="Main">
         <button class="nav-item is-active" data-view="chat">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-4.5A8 8 0 1 1 21 12z"/><path d="M8 10h8M8 14h5"/></svg>
-          <span>Chat</span><kbd>1</kbd>
+          <span data-i18n="nav.chat">Chat</span><kbd>1</kbd>
         </button>
         <button class="nav-item" data-view="materials">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>
-          <span>Materials</span><kbd>2</kbd>
+          <span data-i18n="nav.materials">Materials</span><kbd>2</kbd>
         </button>
         <button class="nav-item" data-view="quiz">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
-          <span>Practice</span><kbd>3</kbd>
+          <span data-i18n="nav.practice">Practice</span><kbd>3</kbd>
         </button>
         <button class="nav-item" data-view="cards">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6.5" width="13" height="12" rx="2.5"/><path d="M8 3.5h11a2 2 0 0 1 2 2v9"/></svg>
-          <span>Flashcards</span><kbd>4</kbd>
+          <span data-i18n="nav.flashcards">Flashcards</span><kbd>4</kbd>
         </button>
         <button class="nav-item" data-view="insights">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-          <span>Insights</span><kbd>5</kbd>
+          <span data-i18n="nav.insights">Insights</span><kbd>5</kbd>
+        </button>
+        <button class="nav-item" data-view="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.56-1.03 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01a1.7 1.7 0 0 0 1.56 1.03H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1.03z"/></svg>
+          <span data-i18n="nav.settings">Settings</span><kbd>6</kbd>
         </button>
       </nav>
 
       <div class="side-section">
-        <div class="side-label"><span>Materials</span><span class="count" id="doc-count">0</span></div>
+        <div class="side-label"><span data-i18n="side.materials">Materials</span><span class="count" id="doc-count">0</span></div>
         <div class="side-docs" id="side-docs">
-          <div class="side-empty">No materials yet</div>
+          <div class="side-empty" data-i18n="side.empty">No materials yet</div>
         </div>
       </div>
 
@@ -55,7 +59,7 @@
         <div class="status-pill" id="health-pill" title="System status">
           <span class="dot"></span><span id="health-text">Connecting…</span>
         </div>
-        <div class="side-note">Local index · Cloud reasoning</div>
+        <div class="side-note" data-i18n="side.note">Local index · Cloud reasoning</div>
       </div>
     </aside>
 
@@ -69,9 +73,13 @@
           <label class="scope-select" title="Limit answers to one document">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/></svg>
             <select id="doc-filter" aria-label="Document scope">
-              <option value="all">All materials</option>
+              <option value="all" data-i18n="scope.all">All materials</option>
             </select>
           </label>
+          <button class="btn btn-ghost" id="lang-btn" type="button" title="Language / 语言" aria-label="Language">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+            <span id="lang-btn-label">中文</span>
+          </button>
           <button class="btn btn-ghost btn-icon" id="history-btn" type="button" title="Chat history" aria-label="Chat history">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </button>
@@ -89,14 +97,14 @@
           </div>
           <div class="composer-area">
             <form class="composer" id="chat-form" autocomplete="off">
-              <textarea id="chat-input" rows="1" placeholder="Ask anything about your materials…" aria-label="Message"></textarea>
+              <textarea id="chat-input" rows="1" placeholder="Ask anything about your materials…" aria-label="Message" data-i18n-placeholder="chat.placeholder"></textarea>
               <button class="send-btn" id="send-btn" type="submit" title="Send (Enter)" aria-label="Send">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
               </button>
             </form>
             <div class="composer-meta">
               <span class="scope-chip" id="scope-chip">All materials</span>
-              <span class="hint">Enter to send · Shift+Enter for a new line</span>
+              <span class="hint" data-i18n="chat.hint">Enter to send · Shift+Enter for a new line</span>
             </div>
           </div>
         </section>
@@ -119,6 +127,11 @@
         <!-- INSIGHTS -->
         <section class="view" id="view-insights" data-view="insights">
           <div class="view-inner" id="insights-body"></div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="view" id="view-settings" data-view="settings">
+          <div class="view-inner" id="settings-body"></div>
         </section>
       </div>
     </main>

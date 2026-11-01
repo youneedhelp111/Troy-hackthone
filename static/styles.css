@@ -1660,6 +1660,35 @@ a { color: var(--mint); }
   .modal-panel { margin: 20px auto; padding: 22px; }
 }
 
+/* ---------------------------------------------------------- settings */
+.field-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text);
+  font-size: 13.5px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field-input:focus {
+  outline: none;
+  border-color: rgba(110, 231, 183, 0.5);
+  box-shadow: 0 0 0 3px rgba(110, 231, 183, 0.12);
+}
+.field-input::placeholder { color: var(--faint); }
+
+.ob-advanced { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 4px; }
+.ob-advanced summary {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px 0;
+  user-select: none;
+}
+.ob-advanced summary:hover { color: var(--text); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;

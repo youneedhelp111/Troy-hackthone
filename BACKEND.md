@@ -327,6 +327,12 @@ CREATE TABLE mastery (
     total     INTEGER DEFAULT 0,
     last_seen TEXT
 );
+
+-- 运行时 LLM 配置（网页 Settings 覆盖 .env 默认值）
+CREATE TABLE settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 ```
 
 ### 5.3 掌握度更新
@@ -367,6 +373,8 @@ percent = (correct + 0.5) / (total + 1)
 | Method | Path | 说明 | 成功状态 |
 |---|---|---|---|
 | GET | `/api/health` | 依赖状态与索引统计 | 200 |
+| GET | `/api/settings` | 当前 LLM 配置（密钥打码） | 200 |
+| PUT | `/api/settings` | 保存密钥 / base_url / model | 200 |
 | GET | `/api/documents` | 文档列表 | 200 |
 | GET | `/api/documents/{doc_id}` | 单个文档 | 200 |
 | POST | `/api/documents` | 多文件上传 | 200 |
@@ -414,7 +422,36 @@ percent = (correct + 0.5) / (total + 1)
 
 ---
 
-### 6.3 `POST /api/documents`（上传）
+### 6.3 `GET /api/settings` / `PUT /api/settings`
+
+运行时 LLM 配置。生效值 = `.env` 默认值被 `settings` 表覆盖后的结果；每次请求即时读取，无需重启。
+
+`GET` 响应（密钥永远打码，不返回原文）：
+
+```json
+{
+  "base_url": "https://api.deepseek.com/v1",
+  "model": "deepseek-flash",
+  "has_key": true,
+  "key_preview": "sk-471…3252"
+}
+```
+
+`PUT` 请求体（字段均可省略；空值被忽略，表示“保持现状”）：
+
+```json
+{ "api_key": "sk-…", "base_url": "https://api.deepseek.com/v1", "model": "deepseek-flash" }
+```
+
+- `api_key` 省略或为空 → 不覆盖现有密钥
+- `base_url` 非空时必须以 `http://` 或 `https://` 开头
+- `model` 非空则直接覆盖
+
+前端在首次启动时读取 `has_key`：为 `false` 时弹出引导框让用户粘贴密钥，保存后写入 `settings` 表（本地 `data/studypal.db`，已 gitignore）。
+
+---
+
+### 6.4 `POST /api/documents`（上传）
 
 `multipart/form-data`，字段名 `files`，可重复。
 
@@ -470,7 +507,7 @@ parse → normalize → chunk → embed → 写 chunks + FTS → 提取标题/�
 
 ---
 
-### 6.4 `GET /api/documents`
+### 6.5 `GET /api/documents`
 
 ```json
 {
@@ -497,13 +534,13 @@ parse → normalize → chunk → embed → 写 chunks + FTS → 提取标题/�
 
 ---
 
-### 6.5 `GET /api/documents/{doc_id}`
+### 6.6 `GET /api/documents/{doc_id}`
 
 返回单个文档对象（结构同上）。不存在时 `404 {"detail":"Document not found"}`。
 
 ---
 
-### 6.6 `DELETE /api/documents/{doc_id}`
+### 6.7 `DELETE /api/documents/{doc_id}`
 
 级联删除：
 
@@ -520,7 +557,7 @@ parse → normalize → chunk → embed → 写 chunks + FTS → 提取标题/�
 
 ---
 
-### 6.7 `GET /api/sessions`
+### 6.8 `GET /api/sessions`
 
 ```json
 {
@@ -539,7 +576,7 @@ parse → normalize → chunk → embed → 写 chunks + FTS → 提取标题/�
 
 ---
 
-### 6.8 `GET /api/sessions/{session_id}`
+### 6.9 `GET /api/sessions/{session_id}`
 
 ```json
 {
@@ -583,7 +620,7 @@ parse → normalize → chunk → embed → 写 chunks + FTS → 提取标题/�
 
 ---
 
-### 6.9 `POST /api/chat`（SSE 流式）
+### 6.10 `POST /api/chat`（SSE 流式）
 
 请求：
 
@@ -666,7 +703,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.10 `POST /api/quiz/generate`
+### 6.11 `POST /api/quiz/generate`
 
 请求：
 
@@ -738,7 +775,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.11 `POST /api/quiz/{quiz_id}/submit`
+### 6.12 `POST /api/quiz/{quiz_id}/submit`
 
 请求：
 
@@ -787,7 +824,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.12 `POST /api/flashcards/generate`
+### 6.13 `POST /api/flashcards/generate`
 
 请求：
 
@@ -827,7 +864,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.13 `GET /api/flashcards`
+### 6.14 `GET /api/flashcards`
 
 查询参数：
 
@@ -859,7 +896,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.14 `POST /api/flashcards/review`
+### 6.15 `POST /api/flashcards/review`
 
 请求：
 
@@ -885,7 +922,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.15 `GET /api/analytics`
+### 6.16 `GET /api/analytics`
 
 ```json
 {
@@ -954,7 +991,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.16 `POST /api/study-plan`
+### 6.17 `POST /api/study-plan`
 
 请求：
 
@@ -982,7 +1019,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.17 `GET /api/suggestions`
+### 6.18 `GET /api/suggestions`
 
 ```json
 {
@@ -1006,7 +1043,7 @@ data: {"message":"The AI service hiccuped. Try again in a moment."}
 
 ---
 
-### 6.18 静态路由
+### 6.19 静态路由
 
 | Path | 行为 |
 |---|---|
