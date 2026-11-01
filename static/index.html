@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StudyPal — AI study buddy</title>
+  <meta name="description" content="Turn your course materials into an AI tutor that cites every answer." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.6l2.35 6.05L20.4 11l-6.05 2.35L12 19.4l-2.35-6.05L3.6 11l6.05-2.35L12 2.6z" fill="currentColor"/></svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">StudyPal</div>
+          <div class="brand-tag">AI study buddy</div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Main">
+        <button class="nav-item is-active" data-view="chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-4.5A8 8 0 1 1 21 12z"/><path d="M8 10h8M8 14h5"/></svg>
+          <span>Chat</span><kbd>1</kbd>
+        </button>
+        <button class="nav-item" data-view="materials">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>
+          <span>Materials</span><kbd>2</kbd>
+        </button>
+        <button class="nav-item" data-view="quiz">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+          <span>Practice</span><kbd>3</kbd>
+        </button>
+        <button class="nav-item" data-view="cards">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6.5" width="13" height="12" rx="2.5"/><path d="M8 3.5h11a2 2 0 0 1 2 2v9"/></svg>
+          <span>Flashcards</span><kbd>4</kbd>
+        </button>
+        <button class="nav-item" data-view="insights">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+          <span>Insights</span><kbd>5</kbd>
+        </button>
+      </nav>
+
+      <div class="side-section">
+        <div class="side-label"><span>Materials</span><span class="count" id="doc-count">0</span></div>
+        <div class="side-docs" id="side-docs">
+          <div class="side-empty">No materials yet</div>
+        </div>
+      </div>
+
+      <div class="side-foot">
+        <div class="status-pill" id="health-pill" title="System status">
+          <span class="dot"></span><span id="health-text">Connecting…</span>
+        </div>
+        <div class="side-note">Local index · Cloud reasoning</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="page-head">
+          <h1 id="page-title">Chat</h1>
+          <p id="page-sub">Ask anything about your materials</p>
+        </div>
+        <div class="top-actions">
+          <label class="scope-select" title="Limit answers to one document">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/></svg>
+            <select id="doc-filter" aria-label="Document scope">
+              <option value="all">All materials</option>
+            </select>
+          </label>
+          <button class="btn btn-ghost btn-icon" id="history-btn" type="button" title="Chat history" aria-label="Chat history">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </button>
+          <button class="btn btn-ghost" id="top-action" type="button">
+            <span id="top-action-label">History</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="view-wrap">
+        <!-- CHAT -->
+        <section class="view is-active" id="view-chat" data-view="chat">
+          <div class="chat-scroll" id="chat-scroll">
+            <div class="chat-inner" id="chat-messages"></div>
+          </div>
+          <div class="composer-area">
+            <form class="composer" id="chat-form" autocomplete="off">
+              <textarea id="chat-input" rows="1" placeholder="Ask anything about your materials…" aria-label="Message"></textarea>
+              <button class="send-btn" id="send-btn" type="submit" title="Send (Enter)" aria-label="Send">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+              </button>
+            </form>
+            <div class="composer-meta">
+              <span class="scope-chip" id="scope-chip">All materials</span>
+              <span class="hint">Enter to send · Shift+Enter for a new line</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- MATERIALS -->
+        <section class="view" id="view-materials" data-view="materials">
+          <div class="view-inner" id="materials-body"></div>
+        </section>
+
+        <!-- QUIZ -->
+        <section class="view" id="view-quiz" data-view="quiz">
+          <div class="view-inner" id="quiz-body"></div>
+        </section>
+
+        <!-- FLASHCARDS -->
+        <section class="view" id="view-cards" data-view="cards">
+          <div class="view-inner" id="cards-body"></div>
+        </section>
+
+        <!-- INSIGHTS -->
+        <section class="view" id="view-insights" data-view="insights">
+          <div class="view-inner" id="insights-body"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="modal-root" id="modal-root"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
