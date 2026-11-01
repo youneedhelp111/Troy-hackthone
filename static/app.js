@@ -109,7 +109,7 @@
       "card.youMarked": "You marked {known} of {total} cards as known ({pct}%).",
       "card.newDeck": "New deck", "card.weakSpots": "Weak spots", "card.seeInsights": "See insights",
       "card.card": "Card", "card.of": "of", "card.exitDeck": "Exit deck", "card.prompt": "Prompt",
-      "card.flipHint": "Click or press Space to flip", "card.answer": "Answer",
+      "card.flipHint": "Click or press Space to flip", "card.flip": "Flip card", "card.answer": "Answer",
       "card.again": "Again", "card.gotIt": "Got it", "card.tip": "Space flips · ← Again · → Got it",
       "card.buildDeck": "Build a flashcard deck",
       "card.buildSub": "Active recall beats re-reading. Cards are generated from your materials and graded into your mastery map.",
@@ -225,7 +225,7 @@
       "card.youMarked": "你把 {total} 张中的 {known} 张标记为已掌握（{pct}%）。",
       "card.newDeck": "新卡组", "card.weakSpots": "薄弱点", "card.seeInsights": "查看洞察",
       "card.card": "卡", "card.of": "，共", "card.exitDeck": "退出卡组", "card.prompt": "问题",
-      "card.flipHint": "点击或按空格翻面", "card.answer": "答案",
+      "card.flipHint": "点击或按空格翻面", "card.flip": "翻面", "card.answer": "答案",
       "card.again": "没记住", "card.gotIt": "记住了", "card.tip": "空格翻面 · ← 没记住 · → 记住了",
       "card.buildDeck": "创建闪卡组",
       "card.buildSub": "主动回忆胜过反复阅读。闪卡根据你的材料生成，并计入掌握度地图。",
@@ -1491,7 +1491,7 @@
               <button class="btn btn-sm btn-ghost" type="button" data-fc="exit">${t("card.exitDeck")}</button>
             </div>
           </div>
-          <div class="fc-scene" id="fc-scene" role="button" tabindex="0" aria-label="Flip card">
+          <div class="fc-scene" id="fc-scene" role="button" tabindex="0" aria-label="${t("card.flip")}">
             <div class="fc-card${c.flipped ? " is-flipped" : ""}" data-fc-card>
               <div class="fc-face fc-front">
                 <div class="fc-tag">${esc(card.concept || t("quiz.concept"))}</div>
@@ -1666,9 +1666,9 @@
       box.innerHTML = `
         <div class="empty-state">
           <div class="es-icon">${icons.chart}</div>
-          <h3>Your mastery map starts with a document</h3>
-          <p>Upload your course materials, ask a few questions, and take one quiz. Insights will fill in from there.</p>
-          <button class="btn btn-primary" type="button" data-ins="upload">${icons.upload} Upload materials</button>
+          <h3>${t("insights.emptyTitle")}</h3>
+          <p>${t("insights.emptyBody")}</p>
+          <button class="btn btn-primary" type="button" data-ins="upload">${icons.upload} ${t("quiz.uploadMaterials")}</button>
         </div>`;
       return;
     }
@@ -1680,11 +1680,11 @@
           const pct = Math.round(m.percent * 100);
           const tone = pct >= 72 ? "high" : pct >= 50 ? "mid" : "low";
           return `<div class="mastery-row">
-            <div class="mr-top"><span class="mr-name">${esc(m.concept)}</span><span class="mr-pct">${pct}% · ${m.total} attempt${m.total === 1 ? "" : "s"}</span></div>
+            <div class="mr-top"><span class="mr-name">${esc(m.concept)}</span><span class="mr-pct">${pct}% · ${m.total} ${m.total === 1 ? t("insights.attempt") : t("insights.attempts")}</span></div>
             <div class="mastery-bar"><i class="${tone}" style="width:${Math.max(4, pct)}%"></i></div>
           </div>`;
         }).join("")
-      : `<div class="tiny faint" style="padding:18px 0">Take a quiz or review flashcards to build your mastery map.</div>`;
+      : `<div class="tiny faint" style="padding:18px 0">${t("insights.noMastery")}</div>`;
 
     const weak = data.weak || [];
     const recs = data.recommendations || [];
@@ -1692,25 +1692,25 @@
     box.innerHTML = `
       <div class="row-between" style="margin-bottom:20px">
         <div>
-          <h2 class="section-title">Insights</h2>
-          <p class="section-sub">What you've covered, what stuck, and what to do next.</p>
+          <h2 class="section-title">${t("insights.title")}</h2>
+          <p class="section-sub">${t("insights.sub")}</p>
         </div>
       </div>
 
       <div class="stat-grid">
-        <div class="stat-card"><div class="sv">${s.documents}</div><div class="sl">Materials</div><div class="sd">${s.chunks} indexed chunks</div></div>
-        <div class="stat-card"><div class="sv">${s.questions_answered}</div><div class="sl">Questions answered</div><div class="sd">${s.quizzes} quiz${s.quizzes === 1 ? "" : "zes"} generated</div></div>
-        <div class="stat-card"><div class="sv">${s.accuracy}%</div><div class="sl">Quiz accuracy</div><div class="sd">across all attempts</div></div>
-        <div class="stat-card"><div class="sv">${s.card_reviews}</div><div class="sl">Card reviews</div><div class="sd">${s.flashcards} cards in your decks</div></div>
+        <div class="stat-card"><div class="sv">${s.documents}</div><div class="sl">${t("insights.materials")}</div><div class="sd">${s.chunks} ${t("insights.indexedChunks")}</div></div>
+        <div class="stat-card"><div class="sv">${s.questions_answered}</div><div class="sl">${t("insights.questionsAnswered")}</div><div class="sd">${s.quizzes} ${t("insights.quizzesGenerated")}</div></div>
+        <div class="stat-card"><div class="sv">${s.accuracy}%</div><div class="sl">${t("insights.quizAccuracy")}</div><div class="sd">${t("insights.acrossAttempts")}</div></div>
+        <div class="stat-card"><div class="sv">${s.card_reviews}</div><div class="sl">${t("insights.cardReviews")}</div><div class="sd">${s.flashcards} ${t("insights.cardsInDecks")}</div></div>
       </div>
 
       <div class="insights-grid">
         <div class="panel">
-          <div class="panel-head"><div><h2>Concept mastery</h2><p>Smoothed accuracy from quizzes and flashcards</p></div></div>
+          <div class="panel-head"><div><h2>${t("insights.conceptMastery")}</h2><p>${t("insights.smoothed")}</p></div></div>
           <div class="mastery-list">${masteryRows}</div>
         </div>
         <div class="panel">
-          <div class="panel-head"><div><h2>Focus next</h2><p>Based on what you've missed</p></div></div>
+          <div class="panel-head"><div><h2>${t("insights.focusNext")}</h2><p>${t("insights.basedOnMissed")}</p></div></div>
           <div class="rec-list">
             ${recs.slice(0, 4).map((r) => `
               <div class="rec-card">
@@ -1720,21 +1720,21 @@
           </div>
           ${weak.length ? `
             <div class="row" style="margin-top:16px;flex-wrap:wrap">
-              <button class="btn btn-sm btn-primary" type="button" data-ins="weak-quiz">${icons.target} Quiz weak spots</button>
-              <button class="btn btn-sm" type="button" data-ins="weak-cards">${icons.cards} Flashcards</button>
+              <button class="btn btn-sm btn-primary" type="button" data-ins="weak-quiz">${icons.target} ${t("insights.quizWeakSpots")}</button>
+              <button class="btn btn-sm" type="button" data-ins="weak-cards">${icons.cards} ${t("insights.flashcards")}</button>
             </div>` : ""}
         </div>
       </div>
 
       <div class="panel activity-card">
         <div class="panel-head" style="margin-bottom:4px">
-          <div><h2>This week</h2><p>Quiz attempts · flashcard reviews · questions asked</p></div>
-          <span class="tiny faint">${data.activity.reduce((sum, a) => sum + a.total, 0)} actions</span>
+          <div><h2>${t("insights.thisWeek")}</h2><p>${t("insights.weekSub")}</p></div>
+          <span class="tiny faint">${data.activity.reduce((sum, a) => sum + a.total, 0)} ${t("insights.actions")}</span>
         </div>
         <div class="activity-chart">
           ${data.activity.map((a) => `
             <div class="act-col">
-              <div class="act-bars" title="${a.total} actions">
+              <div class="act-bars" title="${a.total} ${t("insights.actions")}">
                 <i class="quiz" style="height:${a.quiz ? Math.max(6, (a.quiz / maxActivity) * 100) : 2}%"></i>
                 <i class="cards" style="height:${a.cards ? Math.max(6, (a.cards / maxActivity) * 100) : 2}%"></i>
                 <i class="chat" style="height:${a.chat ? Math.max(6, (a.chat / maxActivity) * 100) : 2}%"></i>
@@ -1747,10 +1747,10 @@
       ${state.plan ? `
         <div class="plan-box">
           <div class="row-between" style="margin-bottom:10px">
-            <div class="row"><span class="tiny" style="color:var(--mint);letter-spacing:.08em;text-transform:uppercase;font-weight:650">AI study plan</span></div>
+            <div class="row"><span class="tiny" style="color:var(--mint);letter-spacing:.08em;text-transform:uppercase;font-weight:650">${t("insights.aiPlan")}</span></div>
             <div class="plan-actions" style="margin:0">
-              <button class="btn btn-sm" type="button" data-ins="plan-copy">${icons.copy} Copy</button>
-              <button class="btn btn-sm" type="button" data-ins="plan">${icons.refresh} Regenerate</button>
+              <button class="btn btn-sm" type="button" data-ins="plan-copy">${icons.copy} ${t("common.copy")}</button>
+              <button class="btn btn-sm" type="button" data-ins="plan">${icons.refresh} ${t("insights.regenerate")}</button>
             </div>
           </div>
           <div class="md">${md(state.plan)}</div>
@@ -1758,10 +1758,10 @@
         <div class="plan-box">
           <div class="row-between">
             <div>
-              <div style="font-size:14px;font-weight:620">Turn this into a plan</div>
-              <div class="tiny faint" style="margin-top:4px">${weak.length ? `Prioritising ${weak.slice(0, 2).map((w) => w.concept).join(" and ")}` : "A 3-hour plan built from your materials"}</div>
+              <div style="font-size:14px;font-weight:620">${t("insights.turnIntoPlan")}</div>
+              <div class="tiny faint" style="margin-top:4px">${weak.length ? t("insights.prioritizing", { topics: weak.slice(0, 2).map((w) => w.concept).join(LANG === "zh" ? "、" : " and ") }) : t("insights.planDefault")}</div>
             </div>
-            <button class="btn btn-primary" type="button" data-ins="plan" ${state.planLoading ? "disabled" : ""}>${state.planLoading ? '<span class="spinner"></span> Writing…' : `${icons.spark} Generate 3-hour plan`}</button>
+            <button class="btn btn-primary" type="button" data-ins="plan" ${state.planLoading ? "disabled" : ""}>${state.planLoading ? `<span class="spinner"></span> ${t("insights.writing")}` : `${icons.spark} ${t("insights.generatePlan")}`}</button>
           </div>
         </div>`}
     `;
@@ -1813,7 +1813,7 @@
         renderQuiz();
       } else if (state.view === "cards") {
         if (state.cards.deck.length && state.cards.index < state.cards.deck.length) {
-          if (!confirm("Leave this deck and build a new one?")) return;
+          if (!confirm(t("card.leaveNew"))) return;
         }
         state.cards.deck = [];
         state.cards.index = 0;
@@ -1899,7 +1899,7 @@
         if (!msg) return;
         if (action.dataset.action === "copy") copyText(msg.content);
         if (action.dataset.action === "speak") {
-          if (!("speechSynthesis" in window)) { toast("Speech is not available", "error"); return; }
+          if (!("speechSynthesis" in window)) { toast(t("chat.speechUnavailable"), "error"); return; }
           window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(stripMd(msg.content));
           utterance.rate = 1.03;
@@ -1964,7 +1964,7 @@
         const action = go.dataset.quizGo;
         if (action === "materials") { setView("materials"); return; }
         if (action === "generate") { generateQuiz(); return; }
-        if (action === "exit") { if (confirm("Leave this quiz? Progress will be lost.")) { resetQuiz(); renderQuiz(); } return; }
+        if (action === "exit") { if (confirm(t("quiz.leaveConfirm"))) { resetQuiz(); renderQuiz(); } return; }
         if (action === "check") { checkAnswer(); return; }
         if (action === "next") { nextQuestion(); return; }
         if (action === "submit") { submitQuiz(); return; }
@@ -2036,7 +2036,7 @@
       const fc = event.target.closest("[data-fc]");
       if (!fc) return;
       const action = fc.dataset.fc;
-      if (action === "exit") { if (confirm("Leave this deck?")) { state.cards.deck = []; state.cards.index = 0; renderCards(); } return; }
+      if (action === "exit") { if (confirm(t("card.leaveConfirm"))) { state.cards.deck = []; state.cards.index = 0; renderCards(); } return; }
       if (action === "again") { gradeCard(false); return; }
       if (action === "known") { gradeCard(true); return; }
       if (action === "generate") { generateCards(); return; }
@@ -2044,7 +2044,7 @@
       if (action === "new") { state.cards.deck = []; state.cards.index = 0; state.cards.stats = { known: 0, again: 0 }; renderCards(); return; }
       if (action === "weak") {
         const weak = weakConcepts();
-        if (!weak.length) { toast("No weak concepts yet — take a quiz first", "error"); return; }
+        if (!weak.length) { toast(t("card.noWeak"), "error"); return; }
         generateCards(weak);
         return;
       }
@@ -2071,7 +2071,7 @@
       if (!btn) return;
       const action = btn.dataset.ins;
       if (action === "upload") { setView("materials"); return; }
-      if (action === "refresh") { loadInsights(true); toast("Insights refreshed"); return; }
+      if (action === "refresh") { loadInsights(true); toast(t("insights.refreshed")); return; }
       if (action === "plan") { generatePlan(); return; }
       if (action === "plan-copy") { if (state.plan) copyText(state.plan); return; }
       if (action === "weak-quiz") {
@@ -2327,8 +2327,9 @@
     bindEvents();
     const hash = location.hash.replace("#", "");
     setView(VIEWS.includes(hash) ? hash : "chat", { skipHash: true });
+    applyLang();
 
-    await Promise.all([loadHealth(), loadDocs(), loadSuggestions(), loadInsights(true)]);
+    await Promise.all([loadHealth(), loadDocs(), loadSuggestions(), loadInsights(true), loadSettings()]);
     updateScopeUI();
     if (state.docs.some((d) => d.status === "processing")) startPolling();
     setInterval(loadHealth, 30000);
